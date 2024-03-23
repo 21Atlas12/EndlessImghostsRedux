@@ -1,0 +1,21 @@
+{
+    "keyReplacements" : {
+        "targetHost": "Catbox",
+        "bodyColour": "rgb(243, 211, 107)",
+        "lightAccentColour": "rgb(247, 224, 148)",
+        "darkAccentColour": "rgb(187, 163, 83)"
+    },
+    
+    "toggles": [
+        {"name" : "Images", "desc" : "jpg, png", "id" : "Images"}, 
+        {"name" : "Images ext", "desc" : "gif, webp, jpeg, bmp, tiff, ico", "id" : "ImagesExt"}, 
+        {"name" : "Videos", "desc" : "mp4, webm", "id" : "Videos"}, 
+        {"name" : "Videos etx", "desc" : "m4v, avi, mov", "id" : "VideosExt"}, 
+        {"name" : "Audio", "desc" : "mp3, wav", "id" : "Audio"}, 
+        {"name" : "Audio ext", "desc" : "flac, ogg, aac, midi, mid", "id" : "AudioExt"}, 
+        {"name" : "Documents", "desc" : "txt, pdf", "id" : "Documents"},
+        {"name" : "Documents ext", "desc" : "xml, json, csv, xlsx, pptx", "id" : "DocumentsExt"},
+        {"name" : "Archives", "desc" : "zip, rar, tar.gz, 7z", "id" : "Archives"},
+        {"name" : "Scary", "desc" : "swf, msi, sh", "id" : "Scary"}
+    ]
+}

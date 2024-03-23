@@ -1,0 +1,12 @@
+{
+    "keyReplacements" : {
+        "targetHost": "Imgur",
+        "bodyColour": "rgb(10, 200, 105)",
+        "lightAccentColour": "rgb(137, 218, 177)",
+        "darkAccentColour": "rgb(10, 148, 79)"
+    },
+    
+    "toggles": [
+        {"name" : "5 digit mode", "desc" : "Search using 5 digit ids, you are likely to be rate limited", "id" : "fiveDigit"}
+    ]
+}
