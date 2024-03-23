@@ -14,12 +14,15 @@ commonResPath = os.path.join(workingDir, "commonRes")
 
 outputDirPath = os.path.join(workingDir, "output")
 
-for path in os.listdir(outputDirPath):
-    fullPath = os.path.join(outputDirPath, path)
-    if os.path.isdir(fullPath):
-        shutil.rmtree(fullPath)
-    else:
-        os.remove(fullPath)
+if os.path.exists(outputDirPath):
+    for path in os.listdir(outputDirPath):
+        fullPath = os.path.join(outputDirPath, path)
+        if os.path.isdir(fullPath):
+            shutil.rmtree(fullPath)
+        else:
+            os.remove(fullPath)
+else:
+    os.makedirs(outputDirPath)
 
 shutil.copytree(commonResPath, os.path.join(outputDirPath, "commonRes"))
 
