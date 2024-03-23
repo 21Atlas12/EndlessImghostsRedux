@@ -8,6 +8,8 @@ workingDir = os.getcwd()
 
 baseSitePath = os.path.join(workingDir, "baseSite")
 
+bladesUiPath = os.path.join(workingDir, "bladesUI")
+
 configDirPath = os.path.join(workingDir, "siteConfigs")
 
 commonResPath = os.path.join(workingDir, "commonRes")
@@ -25,6 +27,7 @@ else:
     os.makedirs(outputDirPath)
 
 shutil.copytree(commonResPath, os.path.join(outputDirPath, "commonRes"))
+shutil.copytree(bladesUiPath, outputDirPath, dirs_exist_ok=True)
 
 for path in os.listdir(configDirPath):
     siteConfigPath = os.path.join(configDirPath, path)
@@ -32,8 +35,9 @@ for path in os.listdir(configDirPath):
         configFile = open(os.path.join(siteConfigPath, "config.json"))
         config = json.load(configFile)
         configFile.close()
-        siteOutputDir = os.path.join(outputDirPath, "endless" + config["keyReplacements"]["targetHost"])
+        siteOutputDir = os.path.join(outputDirPath, "Endless" + config["keyReplacements"]["targetHost"])
         shutil.copytree(baseSitePath, siteOutputDir)
+        shutil.copytree(os.path.join(siteConfigPath, "res"), os.path.join(siteOutputDir, "res"), dirs_exist_ok=True)
 
         indexHtmlFilePath = os.path.join(siteOutputDir, "index.html")
         indexHtmlFile = open(indexHtmlFilePath, "r+")
