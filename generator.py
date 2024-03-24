@@ -99,3 +99,5 @@ for path in os.listdir(configDirPath):
         cssFile.truncate(0)
         cssFile.write(css)
         cssFile.close()
+
+print("success")
