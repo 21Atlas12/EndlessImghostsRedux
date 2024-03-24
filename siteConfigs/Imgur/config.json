@@ -7,6 +7,6 @@
     },
     
     "toggles": [
-        {"name" : "5 digit mode", "desc" : "Search using 5 digit ids, you are likely to be rate limited", "id" : "fiveDigit"}
+        {"name" : "5 digit mode", "desc" : "Search using 5 digit ids", "id" : "fiveDigit"}
     ]
 }
