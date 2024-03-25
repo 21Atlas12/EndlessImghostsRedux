@@ -1,4 +1,6 @@
 const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+//fuck it we ball (no client secret, so its fine)
+const clientId = "bf92d77e08518f5"
 
 async function findValidId() {
     var validImg = false;
@@ -12,20 +14,39 @@ async function findValidId() {
         try {
             await testUrl(url).then(
                 async function fulfilled() {
-                    var videoUrl = getUrl(id, "mp4", false)
                     newId = id;
+                    var headers = new Headers();
+                    headers.append("Authorization", "Client-ID " + clientId)
+                    var apiRequest = new Request(getApiUrl(id), {
+                        method: "GET",
+                        headers: headers,
+                        mode: "cors",
+                        cache: "default",
+                      });
+                    var response = await fetch(apiRequest)
+                    if (response.status == 200) {
+                        sendLoggingMsg("in api Check")
+                        var data = await response.text()
+                        var jsonData = JSON.parse(data).data
+                        var fullType = jsonData.type
+                        idMime = fullType.substring(fullType.indexOf("/") + 1)
 
-                    await testUrl(videoUrl).then(
-                        function fulfilled() {
-                            idMime = "mp4"
-                            //todo dont return MP4 for gifs
-                        },
+                        validImg = true;
+                    } else {
+                        sendLoggingMsg("in fallback")
+                        //fallback if imgur gets narky with my api client id
+                        var videoUrl = getUrl(id, "mp4", false)
+                        await testUrl(videoUrl).then(
+                            function fulfilled() {
+                                idMime = "mp4"
+                            },
 
-                        function rejected() {
-                            idMime = "png"
-                        }
-                    )                    
-                    validImg = true;
+                            function rejected() {
+                                idMime = "png"
+                            }
+                        )                    
+                        validImg = true;
+                    }
                 },
 
                 function rejected() {
@@ -63,6 +84,10 @@ function getUrl(id, mime, asThumbnail) {
         url = url + "s"
     }
     return url + "." + mime
+}
+
+function getApiUrl(id) {
+    return "https://api.imgur.com/3/image/" + id
 }
 
 function testUrl(url) {

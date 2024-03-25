@@ -1,4 +1,4 @@
-const imgMimes = ["jpg", "png", "gif", "webp", "jpeg", "bmp", "tiff", "ico"]
+const imgMimes = ["jpg", "jpeg", "png", "gif", "webp", "jpeg", "bmp", "tiff", "ico"]
 const vidMimes = ["mp4", "webm", "m4v", "avi", "mov"]
 const audioMimes = ["mp3", "wav", "flac", "ogg", "aac", "midi", "mid"]
 const docMimes = ["txt", "pdf", "docx", "xml", "json", "csv", "xlsx", "pptx"]
