@@ -44,6 +44,21 @@ function setup() {
             setFavicon(false)
         }
     })
+    var historyBufferMaxSize = 1;
+    document.addEventListener("DOMContentLoaded", function() {
+        var historyBufferPicker = document.getElementById("historyBufferPicker");
+    
+        if (historyBufferPicker) {
+            historyBufferPicker.addEventListener("input", function() {
+                historyBufferMaxSize = parseInt(this.value, 10);
+                console.log("historyBufferMaxSize updated:", historyBufferMaxSize);
+            });
+        }
+    });
+    document.getElementById("historyBufferPicker").addEventListener("input", function() {
+        const count = parseInt(this.value, 10);
+        populateHistoryWheel(count);
+    })
 
     imgHolder = document.getElementById("currentImage");
     imgHolder.crossOrigin = "anonymous";
@@ -92,7 +107,10 @@ function setup() {
         slider.scrollLeft = scrollLeft - walk;
         console.log(walk);
     });
+    populateHistoryWheel(1)
 }
+
+
 
 //#region fetching images
 var pool = []
@@ -153,10 +171,10 @@ function stopSearch() {
     pool.forEach((worker) => {
         worker.terminate()
     })
-    if (historyBuffer.length == 0) {
+    if (currentInfo == undefined) {
         document.getElementById("idLabel").textContent = "NO IMAGE"
     } else {
-        loadHistory(0)
+        loadHistory(currentInfo)
     }
 
     disableControls(false)
@@ -174,6 +192,7 @@ var currentScaling = scalingTypes.fit
 
 function pushContent(contentInfo) {
     currentInfo = contentInfo
+    
     var pushedId = getIdFromContentInfo(contentInfo)
     var pushedMime = getMimeFromContentInfo(contentInfo)
     idLabel.innerHTML = "ID: " + pushedId + "." + pushedMime
@@ -216,6 +235,7 @@ function pushContent(contentInfo) {
     }
 
     pushHistory(currentInfo)
+    
 }
 
 function setupScaling() {
@@ -241,29 +261,52 @@ function setupScaling() {
 //#endregion
 
 //#region manage history
-const historyBuffer = []
+
+
+function slideHistory() {
+    for (let i = 0; i < historyBufferMaxSize; i++) {
+        const img = document.getElementById("pastImg" + i);
+        const currentOrder = parseInt(img.getAttribute("flex-order"));
+        
+        if (currentOrder === historyBufferMaxSize) {
+            img.setAttribute("flex-order", 0);
+        } else {
+            img.setAttribute("flex-order", currentOrder + 1);
+        }
+    }
+}
+
 
 function pushHistory(contentInfo) {
-    historyBuffer.unshift(serializeContentInfo(contentInfo))
-    if (historyBuffer.length > 30) {
-        historyBuffer.pop()
+    slideHistory();
+    const imgBiggestOrder = document.querySelector('.historyImage[flex-order="0"]');
+    
+        imgBiggestOrder.setAttribute("src", getThumbnailUrl(contentInfo));
+        imgBiggestOrder.setAttribute("onclick", "loadHistory("+contentInfo+")");
+}
+function loadHistory(contentInfo) {
+    const imgToLoad = document.querySelector('.historyImage['+getThumbnailUrl(contentInfo)+'');
+    console.log(imgToLoad)
+    for (let i = 0; i < historyBufferMaxSize; i++) {
+    const img = document.getElementById("pastImg" + i)
+    img.setAttribute("flex-order", i + 1)
+    imgToLoad.setAttribute("flex-order", 0)
+    };
+}
+
+function populateHistoryWheel(count) {
+    const historyWheel = document.getElementById("historyWheel");
+
+    historyWheel.innerHTML = '';
+
+    for (let i = 0; i < count; i++) {
+        const img = document.createElement("img");
+        img.className = "historyImage";
+        img.id = "pastImg" + i;
+        img.setAttribute("draggable", "false")
+        img.setAttribute("flex-order", i);
+        historyWheel.appendChild(img);
     }
-    renderHistory()
-}
-
-function loadHistory(historyIndex) {
-    var contentInfo = deserializeContentInfo(historyBuffer[historyIndex])
-    historyBuffer.splice(historyIndex, 1)
-    pushContent(contentInfo)   
-}
-
-function renderHistory() {
-    historyBuffer.forEach(function (contentInfo, index) {
-        var elementId = "pastImg" + (index + 1)
-        var historyButton = document.getElementById(elementId)
-        historyButton.removeAttribute("style")
-        historyButton.setAttribute("src", getThumbnailUrl(deserializeContentInfo(contentInfo)))
-    })
 }
 //#endregion
 
