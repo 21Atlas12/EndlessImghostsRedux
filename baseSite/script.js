@@ -4,6 +4,7 @@ const audioMimes = ["mp3", "wav", "flac", "ogg", "aac", "midi", "mid"]
 const docMimes = ["txt", "pdf", "docx", "xml", "json", "csv", "xlsx", "pptx"]
 const archiveMimes = ["zip", "rar", "tar.gz", "7z"]
 const scaryMimes = ["exe", "swf", "msi", "sh"]
+var currentInfo = ""
 
 function setup() {
     var threadPicker = document.getElementById("threadCountPicker")
@@ -261,8 +262,6 @@ function setupScaling() {
 //#endregion
 
 //#region manage history
-
-
 function slideHistory() {
     for (let i = 0; i < historyBufferMaxSize; i++) {
         const img = document.getElementById("pastImg" + i);
@@ -477,11 +476,9 @@ function getColourFromInfo(contentInfo) {
     // // Return the final hex color value
     // return hex
 }
-
 //#endregion
 
 //#region cookies
-
 function writeCookie(key, val) {
     document.cookie = key + "=" + val
 }
