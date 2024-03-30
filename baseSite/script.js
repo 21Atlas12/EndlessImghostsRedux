@@ -468,6 +468,8 @@ function readHistoryBufferMaxSize() {
     if (!historyBufferPicker.value) {
         historyBufferPicker.value = 1;
     }
+
+    setHistoryBufferMaxSize(historyBufferPicker.value)
 }
 
 function copyCurrentUrl() {
