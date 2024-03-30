@@ -5,8 +5,11 @@ const docMimes = ["txt", "pdf", "docx", "xml", "json", "csv", "xlsx", "pptx"]
 const archiveMimes = ["zip", "rar", "tar.gz", "7z"]
 const scaryMimes = ["exe", "swf", "msi", "sh"]
 var currentInfo = ""
+var historyBufferMaxSize = 30;
+var threadCount = 1
 
 function setup() {
+    var historyWheel = document.getElementById("historyWheel");
     var threadPicker = document.getElementById("threadCountPicker")
 
     threadCookieVal = readCookie("threadCount")
@@ -14,11 +17,19 @@ function setup() {
         threadCount = threadCookieVal
         threadPicker.value = threadCount
     } else {
-        threadCount = 1
         threadPicker.value = threadCount
         writeCookie("threadCount", threadCount)
     }
+    var historyBufferPicker = document.getElementById("historyBufferPicker");
 
+    historyBufferCookieVal = readCookie("historyBufferMaxSize");
+    if (!isNaN(historyBufferCookieVal) && !!historyBufferCookieVal) {
+        historyBufferMaxSize = historyBufferCookieVal;
+        historyBufferPicker.value = historyBufferMaxSize;
+    } else {
+        historyBufferPicker.value = historyBufferMaxSize;
+        writeCookie("historyBufferMaxSize", historyBufferMaxSize);
+    }
     var notifyCheckbox = document.getElementById("notifToggle")
     var playNotifCookieVal = readCookie("playNotif")
 
@@ -40,12 +51,12 @@ function setup() {
     document.addEventListener('touchmove', handleTouchMove, false);
     
     threadPicker.addEventListener("input", readThreadCount)
+    historyBufferPicker.addEventListener("input", readHistoryBufferMaxSize);
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === "visible") {
             setFavicon(false)
         }
     })
-    var historyBufferMaxSize = 1;
     document.addEventListener("DOMContentLoaded", function() {
         var historyBufferPicker = document.getElementById("historyBufferPicker");
     
@@ -53,13 +64,10 @@ function setup() {
             historyBufferPicker.addEventListener("input", function() {
                 historyBufferMaxSize = parseInt(this.value, 10);
                 console.log("historyBufferMaxSize updated:", historyBufferMaxSize);
+                setHistoryWheelToMaxSize()
             });
         }
     });
-    document.getElementById("historyBufferPicker").addEventListener("input", function() {
-        const count = parseInt(this.value, 10);
-        populateHistoryWheel(count);
-    })
 
     imgHolder = document.getElementById("currentImage");
     imgHolder.crossOrigin = "anonymous";
@@ -108,7 +116,7 @@ function setup() {
         slider.scrollLeft = scrollLeft - walk;
         console.log(walk);
     });
-    populateHistoryWheel(1)
+    setHistoryWheelToMaxSize()
 }
 
 
@@ -172,7 +180,7 @@ function stopSearch() {
     pool.forEach((worker) => {
         worker.terminate()
     })
-    if (currentInfo == undefined) {
+    if (currentInfo == "") {
         document.getElementById("idLabel").textContent = "NO IMAGE"
     } else {
         loadHistory(currentInfo)
@@ -262,49 +270,64 @@ function setupScaling() {
 //#endregion
 
 //#region manage history
-function slideHistory() {
-    for (let i = 0; i < historyBufferMaxSize; i++) {
-        const img = document.getElementById("pastImg" + i);
-        const currentOrder = parseInt(img.getAttribute("flex-order"));
-        
-        if (currentOrder === historyBufferMaxSize) {
-            img.setAttribute("flex-order", 0);
-        } else {
-            img.setAttribute("flex-order", currentOrder + 1);
-        }
-    }
-}
-
 
 function pushHistory(contentInfo) {
-    slideHistory();
-    const imgBiggestOrder = document.querySelector('.historyImage[flex-order="0"]');
-    
-        imgBiggestOrder.setAttribute("src", getThumbnailUrl(contentInfo));
-        imgBiggestOrder.setAttribute("onclick", "loadHistory("+contentInfo+")");
+    //slide all the images and wrap the last image to 0
+    var lastHistoryImg
+    var lastHistoryOrder = -1
+    var imgList = document.getElementsByClassName("historyImage")
+    for (let i = 0; i < imgList.length; i++) {
+        var currentOrder = parseInt(imgList[i].style.order);
+        imgList[i].style.order = currentOrder + 1;
+        if (currentOrder > lastHistoryOrder) {
+            lastHistoryImg = imgList[i];
+            lastHistoryOrder = currentOrder;
+        }
+        if (imgList[i].src == getThumbnailUrl(contentInfo)) {
+            imgList[i].style.order = 0;
+            return;
+        }
+    }
+    //deleete enemy with highest order
+    lastHistoryImg.remove()
+    //make a  new guy
+    var img = document.createElement("img");
+    img.className = "historyImage";
+    img.style.order = 0;
+    img.setAttribute("draggable", "false")
+    img.setAttribute("src", getThumbnailUrl(contentInfo));
+    img.setAttribute("onclick", "loadHistory(\""+serializeContentInfo(contentInfo)+"\")");
+    historyWheel.appendChild(img);
 }
+
 function loadHistory(contentInfo) {
-    const imgToLoad = document.querySelector('.historyImage['+getThumbnailUrl(contentInfo)+'');
-    console.log(imgToLoad)
-    for (let i = 0; i < historyBufferMaxSize; i++) {
-    const img = document.getElementById("pastImg" + i)
-    img.setAttribute("flex-order", i + 1)
-    imgToLoad.setAttribute("flex-order", 0)
-    };
+    
+    var deserializedInfo = (deserializeContentInfo(contentInfo));
+    pushContent(deserializedInfo);
 }
 
-function populateHistoryWheel(count) {
-    const historyWheel = document.getElementById("historyWheel");
-
-    historyWheel.innerHTML = '';
-
-    for (let i = 0; i < count; i++) {
-        const img = document.createElement("img");
-        img.className = "historyImage";
-        img.id = "pastImg" + i;
-        img.setAttribute("draggable", "false")
-        img.setAttribute("flex-order", i);
-        historyWheel.appendChild(img);
+function setHistoryWheelToMaxSize() {
+    var imgList = document.getElementsByClassName("historyImage")
+    if (imgList.length < historyBufferMaxSize){
+        //enlarging
+        var amountToAdd = historyBufferMaxSize - imgList.length
+        for (let i = 0; i < amountToAdd; i++) {
+            var img = document.createElement("img");
+            img.className = "historyImage";
+            img.setAttribute("draggable", "false")
+            img.style.order = 999;
+            historyWheel.appendChild(img);
+        }
+    } else if (imgList.length == historyBufferMaxSize){
+    // do nothing
+    } else {
+        var amountToSubtract = imgList.length - historyBufferMaxSize
+        var imgArray = Array.from(imgList)
+        imgArray.sort(function(a,b) {a.style.order - b.style.order})
+        imgArray.reverse()
+        for (let i = imgArray.length - amountToSubtract; i < amountToSubtract; i++) {
+            imgArray[i].remove()
+        }
     }
 }
 //#endregion
@@ -420,6 +443,23 @@ function readThreadCount() {
     }
 
     setThreadCount(threadPicker.value)
+}
+
+function readHistoryBufferMaxSize() {
+    var historyBufferPicker = document.getElementById("historyBufferPicker");
+    historyBufferPicker.value = historyBufferPicker.value.replace(/\D+/g, '');
+
+    if (historyBufferPicker.value > 999) {
+        historyBufferPicker.value = 999;
+    }
+
+    if (historyBufferPicker.value < 1) {
+        historyBufferPicker.value = 1;
+    }
+
+    if (!historyBufferPicker.value) {
+        historyBufferPicker.value = 1;
+    }
 }
 
 function copyCurrentUrl() {
