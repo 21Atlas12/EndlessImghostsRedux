@@ -51,8 +51,8 @@ function setup() {
     document.addEventListener('touchstart', handleTouchStart, false);        
     document.addEventListener('touchmove', handleTouchMove, false);
     
-    threadPicker.addEventListener("input", readThreadCount)
-    historyBufferPicker.addEventListener("input", readHistoryBufferMaxSize);
+    threadPicker.addEventListener("change", readThreadCount)
+    historyBufferPicker.addEventListener("change", readHistoryBufferMaxSize);
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === "visible") {
             setFavicon(false)
@@ -359,6 +359,12 @@ function setThreadCount(num) {
     if (num % 1 == 0) {
         threadCount = num
         writeCookie("threadCount", threadCount)
+    }
+}
+function setHistoryBufferMaxSize(num) {
+    if (num % 1 == 0) {
+        historyBufferMaxSize = num
+        writeCookie("historyBufferMaxSize", historyBufferMaxSize)
     }
 }
 
