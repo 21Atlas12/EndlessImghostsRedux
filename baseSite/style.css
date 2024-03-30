@@ -86,10 +86,17 @@ p {
     align-self: center;
 }
 
-#td {
+td:has(input[type="checkbox"]) {
     text-align: center;
+    cursor:pointer;
 }
-
+td > input[type="checkbox"]{
+    pointer-events:none;
+}
+label{
+    user-select: none;
+    cursor:pointer;
+}
 #copyPrompt {
     font-size: 1.1vmin;
 }

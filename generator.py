@@ -57,7 +57,7 @@ for path in os.listdir(configDirPath):
         getSettingsFunc = "function getSettings() {\n\tlet jsonObj = {}\n"
 
         for item in config["toggles"]:
-            toggleTable += "<td> <input type=\"checkbox\" id=\"{0}Toggle\" title=\"{1}\"> <label for=\"{0}Toggle\" title=\"{1}\">{2}</label> </td>\n".format(item["id"], item["desc"], item["name"])
+            toggleTable += "<td onclick=\"{0}Toggle.click()\"> <input type=\"checkbox\" id=\"{0}Toggle\" title=\"{1}\"> <label for=\"{0}Toggle\" title=\"{1}\">{2}</label> </td>\n".format(item["id"], item["desc"], item["name"])
             currentCol = currentCol + 1
             if currentCol == 4:
                 toggleTable += "</tr>\n"
