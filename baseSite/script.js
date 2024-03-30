@@ -8,7 +8,6 @@ var currentInfo = ""
 var historyBufferMaxSize = 30;
 var threadCount = 1
 var historyWheel = null
-var threadPicker = null
 
 function setup() {
     historyWheel = document.getElementById("historyWheel");
