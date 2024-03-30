@@ -62,7 +62,7 @@ function setup() {
         var historyBufferPicker = document.getElementById("historyBufferPicker");
     
         if (historyBufferPicker) {
-            historyBufferPicker.addEventListener("input", function() {
+            historyBufferPicker.addEventListener("change", function() {
                 historyBufferMaxSize = parseInt(this.value, 10);
                 console.log("historyBufferMaxSize updated:", historyBufferMaxSize);
                 setHistoryWheelToMaxSize()
