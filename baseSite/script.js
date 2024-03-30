@@ -183,7 +183,7 @@ function stopSearch() {
     if (currentInfo == "") {
         document.getElementById("idLabel").textContent = "NO IMAGE"
     } else {
-        loadHistory(currentInfo)
+        loadHistory((serializeContentInfo(currentInfo)))
     }
 
     disableControls(false)
@@ -301,16 +301,16 @@ function pushHistory(contentInfo) {
 }
 
 function loadHistory(contentInfo) {
-    
     var deserializedInfo = (deserializeContentInfo(contentInfo));
     pushContent(deserializedInfo);
 }
 
 function setHistoryWheelToMaxSize() {
     var imgList = document.getElementsByClassName("historyImage")
-    if (imgList.length < historyBufferMaxSize){
+    var initalLength = parseInt(imgList.length)
+    if (initalLength < historyBufferMaxSize){
         //enlarging
-        var amountToAdd = historyBufferMaxSize - imgList.length
+        var amountToAdd = historyBufferMaxSize - initalLength
         for (let i = 0; i < amountToAdd; i++) {
             var img = document.createElement("img");
             img.className = "historyImage";
@@ -318,15 +318,17 @@ function setHistoryWheelToMaxSize() {
             img.style.order = 999;
             historyWheel.appendChild(img);
         }
-    } else if (imgList.length == historyBufferMaxSize){
-    // do nothing
+    } else if (initalLength == historyBufferMaxSize){
+        // do nothing
     } else {
-        var amountToSubtract = imgList.length - historyBufferMaxSize
+        //shrinking
+        var amountToSubtract = initalLength - historyBufferMaxSize
         var imgArray = Array.from(imgList)
-        imgArray.sort(function(a,b) {a.style.order - b.style.order})
-        imgArray.reverse()
-        for (let i = imgArray.length - amountToSubtract; i < amountToSubtract; i++) {
-            imgArray[i].remove()
+        imgArray.sort(function(a,b) {
+            return parseInt(a.style.order) - parseInt(b.style.order)
+        })
+        for (let i = 0; i < amountToSubtract; i++) {
+            imgArray[initalLength - 1 - i].remove()
         }
     }
 }
@@ -375,7 +377,6 @@ function showHistory(visible) {
         historyHolder.style.display = "initial"
         expandIcon.style.transform = "rotate(180deg)"
         divider.setAttribute("onclick", "showHistory(false)")
-        renderHistory()
     } else {
         historyHolder.style.display = "none"
         expandIcon.style.transform = "rotate(0deg)"
