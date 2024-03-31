@@ -46,11 +46,10 @@ function setup() {
         document.documentElement.style.setProperty('--body', "rgb(0, 0, 0, 0");
         document.documentElement.style.setProperty('--background', "rgb(0, 0, 0, 0");
     }
-
     //setup listeners
-    document.addEventListener('touchstart', handleTouchStart, false);        
+    document.addEventListener('touchstart', handleTouchStart, false);
     document.addEventListener('touchmove', handleTouchMove, false);
-    
+
     threadPicker.addEventListener("change", readThreadCount)
     historyBufferPicker.addEventListener("change", readHistoryBufferMaxSize);
     document.addEventListener('visibilitychange', () => {
@@ -58,11 +57,11 @@ function setup() {
             setFavicon(false)
         }
     })
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
         var historyBufferPicker = document.getElementById("historyBufferPicker");
-    
+
         if (historyBufferPicker) {
-            historyBufferPicker.addEventListener("change", function() {
+            historyBufferPicker.addEventListener("change", function () {
                 historyBufferMaxSize = parseInt(this.value, 10);
                 console.log("historyBufferMaxSize updated:", historyBufferMaxSize);
                 setHistoryWheelToMaxSize()
@@ -119,9 +118,6 @@ function setup() {
     });
     setHistoryWheelToMaxSize()
 }
-
-
-
 //#region fetching images
 var pool = []
 
@@ -134,7 +130,7 @@ async function getNewImage() {
     for (let i = 0; i < (threadCount); i++) {
         var newWorker = new Worker("worker.js")
         newWorker.addEventListener("message", function (msg) {
-            var data = msg.data            
+            var data = msg.data
 
             switch (true) {
                 case data.startsWith("@"):
@@ -157,7 +153,7 @@ async function getNewImage() {
                     })
 
                     var contentInfo = data.split(";")
-                    pushContent(contentInfo)         
+                    pushContent(contentInfo)
 
                     if (playNotif) {
                         notify()
@@ -189,7 +185,6 @@ function stopSearch() {
 
     disableControls(false)
 }
-
 //#endregion
 
 //#region manage current image
@@ -202,18 +197,18 @@ var currentScaling = scalingTypes.fit
 
 function pushContent(contentInfo) {
     currentInfo = contentInfo
-    
+
     var pushedId = getIdFromContentInfo(contentInfo)
     var pushedMime = getMimeFromContentInfo(contentInfo)
     idLabel.innerHTML = "ID: " + pushedId + "." + pushedMime
 
-    switch (true) {     
+    switch (true) {
         case imgMimes.includes(pushedMime):
             audioHolder.style.display = "none"
             downloadLink.style.display = "none"
             vidHolder.style.display = "none"
-            vidHolder.pause()    
-            imgHolder.setAttribute("src", getUrl(contentInfo)) 
+            vidHolder.pause()
+            imgHolder.setAttribute("src", getUrl(contentInfo))
             imgHolder.style.display = ""
             break;
 
@@ -221,31 +216,30 @@ function pushContent(contentInfo) {
             imgHolder.style.display = "none"
             audioHolder.style.display = "none"
             downloadLink.style.display = "none"
-            vidHolder.setAttribute("src", getUrl(contentInfo)) 
+            vidHolder.setAttribute("src", getUrl(contentInfo))
             vidHolder.style.display = ""
             break;
-        
+
         case audioMimes.includes(pushedMime):
             downloadLink.style.display = "none"
-            imgHolder.style.display = "none"    
+            imgHolder.style.display = "none"
             vidHolder.style.display = "none"
-            vidHolder.pause()   
+            vidHolder.pause()
             audioHolder.setAttribute("src", getUrl(contentInfo))
             audioHolder.style.display = ""
             break;
 
-        default: 
+        default:
             audioHolder.style.display = "none"
-            imgHolder.style.display = "none"    
+            imgHolder.style.display = "none"
             vidHolder.style.display = "none"
-            vidHolder.pause()  
+            vidHolder.pause()
             downloadLink.setAttribute("href", getUrl(contentInfo))
             downloadLink.style.display = ""
             break;
     }
 
     pushHistory(currentInfo)
-    
 }
 
 function setupScaling() {
@@ -271,9 +265,7 @@ function setupScaling() {
 //#endregion
 
 //#region manage history
-
 function pushHistory(contentInfo) {
-    //slide all the images and wrap the last image to 0
     var lastHistoryImg
     var lastHistoryOrder = -1
     var imgList = document.getElementsByClassName("historyImage")
@@ -297,7 +289,7 @@ function pushHistory(contentInfo) {
     img.style.order = 0;
     img.setAttribute("draggable", "false")
     img.setAttribute("src", getThumbnailUrl(contentInfo));
-    img.setAttribute("onclick", "loadHistory(\""+serializeContentInfo(contentInfo)+"\")");
+    img.setAttribute("onclick", "loadHistory(\"" + serializeContentInfo(contentInfo) + "\")");
     historyWheel.appendChild(img);
 }
 
@@ -309,7 +301,7 @@ function loadHistory(contentInfo) {
 function setHistoryWheelToMaxSize() {
     var imgList = document.getElementsByClassName("historyImage")
     var initalLength = parseInt(imgList.length)
-    if (initalLength < historyBufferMaxSize){
+    if (initalLength < historyBufferMaxSize) {
         //enlarging
         var amountToAdd = historyBufferMaxSize - initalLength
         for (let i = 0; i < amountToAdd; i++) {
@@ -319,13 +311,13 @@ function setHistoryWheelToMaxSize() {
             img.style.order = 999;
             historyWheel.appendChild(img);
         }
-    } else if (initalLength == historyBufferMaxSize){
+    } else if (initalLength == historyBufferMaxSize) {
         // do nothing
     } else {
         //shrinking
         var amountToSubtract = initalLength - historyBufferMaxSize
         var imgArray = Array.from(imgList)
-        imgArray.sort(function(a,b) {
+        imgArray.sort(function (a, b) {
             return parseInt(a.style.order) - parseInt(b.style.order)
         })
         for (let i = 0; i < amountToSubtract; i++) {
@@ -408,7 +400,6 @@ function selectScaling() {
 
     setupScaling()
 }
-
 //#endregion
 
 //#region UI functions
@@ -543,11 +534,9 @@ function readCookie(key) {
     }
     return null;
 }
-
 //#endregion
 
 //#region helpers
-
 function arraysIdentical(a, b) {
     var i = a.length;
     if (i != b.length) return false;
@@ -562,15 +551,14 @@ function showErrorToUser(msg) {
     throw new Error(msg);
 }
 
-function getQueryVariable(variable)
-{
-       var query = window.location.search.substring(1);
-       var vars = query.split("&");
-       for (var i=0;i<vars.length;i++) {
-               var pair = vars[i].split("=");
-               if(pair[0] == variable){return pair[1];}
-       }
-       return(false);
+function getQueryVariable(variable) {
+    var query = window.location.search.substring(1);
+    var vars = query.split("&");
+    for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split("=");
+        if (pair[0] == variable) { return pair[1]; }
+    }
+    return (false);
 }
 //#endregion
 
