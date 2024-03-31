@@ -77,24 +77,21 @@ p {
     border: 2px var(--darkAccent);
     border-style:none;
 }
-#toggleTable > tbody > tr > td{
+#toggleTable td{
     background-color:var(--lightAccent);
     border-radius: 4px;
     border-style:none;
+    text-align: center;
+    cursor:pointer;
 }
 #scalingRadioHolder{
     align-self: center;
 }
 
-td:has(input[type="checkbox"]) {
-    text-align: center;
-    cursor:pointer;
+#toggleTable input[type="checkbox"]{
+    pointer-events: none;
 }
-td > input[type="checkbox"]{
-    pointer-events:none;
-}
-label{
-    user-select: none;
+input[type="checkbox"] ~ label{
     cursor:pointer;
 }
 #copyPrompt {
