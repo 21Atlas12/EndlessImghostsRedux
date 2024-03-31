@@ -86,10 +86,17 @@ p {
     align-self: center;
 }
 
-#td {
+td:has(input[type="checkbox"]) {
     text-align: center;
+    cursor:pointer;
 }
-
+td > input[type="checkbox"]{
+    pointer-events:none;
+}
+label{
+    user-select: none;
+    cursor:pointer;
+}
 #copyPrompt {
     font-size: 1.1vmin;
 }
@@ -184,9 +191,11 @@ p {
 }
 
 #historyWheel {
+    display:flex;
+    flex-direction:row;
     width: 100%;
     padding: 4px;
-    overflow-x: auto;
+    overflow-x: scroll;
     white-space: nowrap;
     scrollbar-color: var(--darkAccent) var(--lightAccent);
     scrollbar-width: thin;

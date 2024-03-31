@@ -4,20 +4,33 @@ const audioMimes = ["mp3", "wav", "flac", "ogg", "aac", "midi", "mid"]
 const docMimes = ["txt", "pdf", "docx", "xml", "json", "csv", "xlsx", "pptx"]
 const archiveMimes = ["zip", "rar", "tar.gz", "7z"]
 const scaryMimes = ["exe", "swf", "msi", "sh"]
+var currentInfo = ""
+var historyBufferMaxSize = 30;
+var threadCount = 1
+var historyWheel = null
 
 function setup() {
-    var threadPicker = document.getElementById("threadCountPicker")
+    historyWheel = document.getElementById("historyWheel");
+    threadPicker = document.getElementById("threadCountPicker")
 
     threadCookieVal = readCookie("threadCount")
     if (!isNaN(threadCookieVal) && !!threadCookieVal) {
         threadCount = threadCookieVal
         threadPicker.value = threadCount
     } else {
-        threadCount = 1
         threadPicker.value = threadCount
         writeCookie("threadCount", threadCount)
     }
+    var historyBufferPicker = document.getElementById("historyBufferPicker");
 
+    historyBufferCookieVal = readCookie("historyBufferMaxSize");
+    if (!isNaN(historyBufferCookieVal) && !!historyBufferCookieVal) {
+        historyBufferMaxSize = historyBufferCookieVal;
+        historyBufferPicker.value = historyBufferMaxSize;
+    } else {
+        historyBufferPicker.value = historyBufferMaxSize;
+        writeCookie("historyBufferMaxSize", historyBufferMaxSize);
+    }
     var notifyCheckbox = document.getElementById("notifToggle")
     var playNotifCookieVal = readCookie("playNotif")
 
@@ -33,17 +46,28 @@ function setup() {
         document.documentElement.style.setProperty('--body', "rgb(0, 0, 0, 0");
         document.documentElement.style.setProperty('--background', "rgb(0, 0, 0, 0");
     }
-
     //setup listeners
-    document.addEventListener('touchstart', handleTouchStart, false);        
+    document.addEventListener('touchstart', handleTouchStart, false);
     document.addEventListener('touchmove', handleTouchMove, false);
-    
-    threadPicker.addEventListener("input", readThreadCount)
+
+    threadPicker.addEventListener("change", readThreadCount)
+    historyBufferPicker.addEventListener("change", readHistoryBufferMaxSize);
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === "visible") {
             setFavicon(false)
         }
     })
+    document.addEventListener("DOMContentLoaded", function () {
+        var historyBufferPicker = document.getElementById("historyBufferPicker");
+
+        if (historyBufferPicker) {
+            historyBufferPicker.addEventListener("change", function () {
+                historyBufferMaxSize = parseInt(this.value, 10);
+                console.log("historyBufferMaxSize updated:", historyBufferMaxSize);
+                setHistoryWheelToMaxSize()
+            });
+        }
+    });
 
     imgHolder = document.getElementById("currentImage");
     imgHolder.crossOrigin = "anonymous";
@@ -92,8 +116,8 @@ function setup() {
         slider.scrollLeft = scrollLeft - walk;
         console.log(walk);
     });
+    setHistoryWheelToMaxSize()
 }
-
 //#region fetching images
 var pool = []
 
@@ -106,7 +130,7 @@ async function getNewImage() {
     for (let i = 0; i < (threadCount); i++) {
         var newWorker = new Worker("worker.js")
         newWorker.addEventListener("message", function (msg) {
-            var data = msg.data            
+            var data = msg.data
 
             switch (true) {
                 case data.startsWith("@"):
@@ -129,7 +153,7 @@ async function getNewImage() {
                     })
 
                     var contentInfo = data.split(";")
-                    pushContent(contentInfo)         
+                    pushContent(contentInfo)
 
                     if (playNotif) {
                         notify()
@@ -153,15 +177,14 @@ function stopSearch() {
     pool.forEach((worker) => {
         worker.terminate()
     })
-    if (historyBuffer.length == 0) {
+    if (currentInfo == "") {
         document.getElementById("idLabel").textContent = "NO IMAGE"
     } else {
-        loadHistory(0)
+        loadHistory((serializeContentInfo(currentInfo)))
     }
 
     disableControls(false)
 }
-
 //#endregion
 
 //#region manage current image
@@ -174,17 +197,18 @@ var currentScaling = scalingTypes.fit
 
 function pushContent(contentInfo) {
     currentInfo = contentInfo
+
     var pushedId = getIdFromContentInfo(contentInfo)
     var pushedMime = getMimeFromContentInfo(contentInfo)
     idLabel.innerHTML = "ID: " + pushedId + "." + pushedMime
 
-    switch (true) {     
+    switch (true) {
         case imgMimes.includes(pushedMime):
             audioHolder.style.display = "none"
             downloadLink.style.display = "none"
             vidHolder.style.display = "none"
-            vidHolder.pause()    
-            imgHolder.setAttribute("src", getUrl(contentInfo)) 
+            vidHolder.pause()
+            imgHolder.setAttribute("src", getUrl(contentInfo))
             imgHolder.style.display = ""
             break;
 
@@ -192,24 +216,24 @@ function pushContent(contentInfo) {
             imgHolder.style.display = "none"
             audioHolder.style.display = "none"
             downloadLink.style.display = "none"
-            vidHolder.setAttribute("src", getUrl(contentInfo)) 
+            vidHolder.setAttribute("src", getUrl(contentInfo))
             vidHolder.style.display = ""
             break;
-        
+
         case audioMimes.includes(pushedMime):
             downloadLink.style.display = "none"
-            imgHolder.style.display = "none"    
+            imgHolder.style.display = "none"
             vidHolder.style.display = "none"
-            vidHolder.pause()   
+            vidHolder.pause()
             audioHolder.setAttribute("src", getUrl(contentInfo))
             audioHolder.style.display = ""
             break;
 
-        default: 
+        default:
             audioHolder.style.display = "none"
-            imgHolder.style.display = "none"    
+            imgHolder.style.display = "none"
             vidHolder.style.display = "none"
-            vidHolder.pause()  
+            vidHolder.pause()
             downloadLink.setAttribute("href", getUrl(contentInfo))
             downloadLink.style.display = ""
             break;
@@ -241,29 +265,65 @@ function setupScaling() {
 //#endregion
 
 //#region manage history
-const historyBuffer = []
-
 function pushHistory(contentInfo) {
-    historyBuffer.unshift(serializeContentInfo(contentInfo))
-    if (historyBuffer.length > 30) {
-        historyBuffer.pop()
+    var lastHistoryImg
+    var lastHistoryOrder = -1
+    var imgList = document.getElementsByClassName("historyImage")
+    for (let i = 0; i < imgList.length; i++) {
+        var currentOrder = parseInt(imgList[i].style.order);
+        imgList[i].style.order = currentOrder + 1;
+        if (currentOrder > lastHistoryOrder) {
+            lastHistoryImg = imgList[i];
+            lastHistoryOrder = currentOrder;
+        }
+        if (imgList[i].src == getThumbnailUrl(contentInfo)) {
+            imgList[i].style.order = 0;
+            return;
+        }
     }
-    renderHistory()
+    //deleete enemy with highest order
+    lastHistoryImg.remove()
+    //make a  new guy
+    var img = document.createElement("img");
+    img.className = "historyImage";
+    img.style.order = 0;
+    img.setAttribute("draggable", "false")
+    img.setAttribute("src", getThumbnailUrl(contentInfo));
+    img.setAttribute("onclick", "loadHistory(\"" + serializeContentInfo(contentInfo) + "\")");
+    historyWheel.appendChild(img);
 }
 
-function loadHistory(historyIndex) {
-    var contentInfo = deserializeContentInfo(historyBuffer[historyIndex])
-    historyBuffer.splice(historyIndex, 1)
-    pushContent(contentInfo)   
+function loadHistory(contentInfo) {
+    var deserializedInfo = (deserializeContentInfo(contentInfo));
+    pushContent(deserializedInfo);
 }
 
-function renderHistory() {
-    historyBuffer.forEach(function (contentInfo, index) {
-        var elementId = "pastImg" + (index + 1)
-        var historyButton = document.getElementById(elementId)
-        historyButton.removeAttribute("style")
-        historyButton.setAttribute("src", getThumbnailUrl(deserializeContentInfo(contentInfo)))
-    })
+function setHistoryWheelToMaxSize() {
+    var imgList = document.getElementsByClassName("historyImage")
+    var initalLength = parseInt(imgList.length)
+    if (initalLength < historyBufferMaxSize) {
+        //enlarging
+        var amountToAdd = historyBufferMaxSize - initalLength
+        for (let i = 0; i < amountToAdd; i++) {
+            var img = document.createElement("img");
+            img.className = "historyImage";
+            img.setAttribute("draggable", "false")
+            img.style.order = 999;
+            historyWheel.appendChild(img);
+        }
+    } else if (initalLength == historyBufferMaxSize) {
+        // do nothing
+    } else {
+        //shrinking
+        var amountToSubtract = initalLength - historyBufferMaxSize
+        var imgArray = Array.from(imgList)
+        imgArray.sort(function (a, b) {
+            return parseInt(a.style.order) - parseInt(b.style.order)
+        })
+        for (let i = 0; i < amountToSubtract; i++) {
+            imgArray[initalLength - 1 - i].remove()
+        }
+    }
 }
 //#endregion
 
@@ -293,6 +353,12 @@ function setThreadCount(num) {
         writeCookie("threadCount", threadCount)
     }
 }
+function setHistoryBufferMaxSize(num) {
+    if (num % 1 == 0) {
+        historyBufferMaxSize = num
+        writeCookie("historyBufferMaxSize", historyBufferMaxSize)
+    }
+}
 
 function toggleNotif() {
     playNotif = document.getElementById("notifToggle").checked
@@ -310,7 +376,6 @@ function showHistory(visible) {
         historyHolder.style.display = "initial"
         expandIcon.style.transform = "rotate(180deg)"
         divider.setAttribute("onclick", "showHistory(false)")
-        renderHistory()
     } else {
         historyHolder.style.display = "none"
         expandIcon.style.transform = "rotate(0deg)"
@@ -335,7 +400,6 @@ function selectScaling() {
 
     setupScaling()
 }
-
 //#endregion
 
 //#region UI functions
@@ -378,6 +442,25 @@ function readThreadCount() {
     }
 
     setThreadCount(threadPicker.value)
+}
+
+function readHistoryBufferMaxSize() {
+    var historyBufferPicker = document.getElementById("historyBufferPicker");
+    historyBufferPicker.value = historyBufferPicker.value.replace(/\D+/g, '');
+
+    if (historyBufferPicker.value > 999) {
+        historyBufferPicker.value = 999;
+    }
+
+    if (historyBufferPicker.value < 1) {
+        historyBufferPicker.value = 1;
+    }
+
+    if (!historyBufferPicker.value) {
+        historyBufferPicker.value = 1;
+    }
+
+    setHistoryBufferMaxSize(historyBufferPicker.value)
 }
 
 function copyCurrentUrl() {
@@ -434,11 +517,9 @@ function getColourFromInfo(contentInfo) {
     // // Return the final hex color value
     // return hex
 }
-
 //#endregion
 
 //#region cookies
-
 function writeCookie(key, val) {
     document.cookie = key + "=" + val
 }
@@ -453,11 +534,9 @@ function readCookie(key) {
     }
     return null;
 }
-
 //#endregion
 
 //#region helpers
-
 function arraysIdentical(a, b) {
     var i = a.length;
     if (i != b.length) return false;
@@ -472,15 +551,14 @@ function showErrorToUser(msg) {
     throw new Error(msg);
 }
 
-function getQueryVariable(variable)
-{
-       var query = window.location.search.substring(1);
-       var vars = query.split("&");
-       for (var i=0;i<vars.length;i++) {
-               var pair = vars[i].split("=");
-               if(pair[0] == variable){return pair[1];}
-       }
-       return(false);
+function getQueryVariable(variable) {
+    var query = window.location.search.substring(1);
+    var vars = query.split("&");
+    for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split("=");
+        if (pair[0] == variable) { return pair[1]; }
+    }
+    return (false);
 }
 //#endregion
 
