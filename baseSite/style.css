@@ -1,20 +1,25 @@
+/* #region font definitions */
 @font-face {
     font-family: 'Minecrafter';
     src: url('res/Minecrafter.woff2') format('woff2');
-  }
+}
+/* #endregion */
 
+/* #region Global Styles */
 * {
     box-sizing: border-box;
     font-family: Verdana;
 }
 
+/* Color Variables */
 :root {
     --body: ~KEY:bodyColour~;
     --background: rgb(43, 43, 43);
     --lightAccent: ~KEY:lightAccentColour~;
     --darkAccent: ~KEY:darkAccentColour~;
-  }
+}
 
+/* Base Styles */
 html, body {
     margin: 0px;
     height: 100%;
@@ -27,6 +32,28 @@ p {
     margin: 0px;
 }
 
+input[type="checkbox"] ~ label{
+    cursor:pointer;
+}
+
+.transparent {
+    opacity: 0;
+}
+
+#currentContent {
+    display:flex;
+    justify-content:center;
+
+    padding-bottom: 30px;
+}
+
+#copyPrompt {
+    font-size: 1.1vmin;
+}
+
+/* #endregion */
+
+/* #region Header */
 #header {
     width: 100%;
     height: fit-content;
@@ -34,7 +61,7 @@ p {
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
-    align-items: center;    
+    align-items: center;
     padding: 10px;
     margin-bottom: 10px;
 }
@@ -43,7 +70,7 @@ p {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    align-items: center;  
+    align-items: center;
     width: 100%;
 }
 
@@ -64,40 +91,36 @@ p {
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
-    align-items: center; 
+    align-items: center;
 }
 
 #controls.mobile {
     width: 100%;
     order: 99;
 }
+/* #endregion */
 
+/* #region ToggleTable */
 #toggleTable {
     table-layout: fixed;
     border: 2px var(--darkAccent);
-    border-style:none;
-}
-#toggleTable td{
-    background-color:var(--lightAccent);
-    border-radius: 4px;
-    border-style:none;
-    text-align: center;
-    cursor:pointer;
-}
-#scalingRadioHolder{
-    align-self: center;
+    border-style: none;
 }
 
-#toggleTable input[type="checkbox"]{
+#toggleTable td {
+    background-color: var(--lightAccent);
+    border-radius: 4px;
+    border-style: none;
+    text-align: center;
+    cursor: pointer;
+}
+
+#toggleTable input[type="checkbox"] {
     pointer-events: none;
 }
-input[type="checkbox"] ~ label{
-    cursor:pointer;
-}
-#copyPrompt {
-    font-size: 1.1vmin;
-}
+/* #endregion */
 
+/* #region IDAndReport */
 #idAndReport {
     display: flex;
     flex-direction: row;
@@ -110,10 +133,10 @@ input[type="checkbox"] ~ label{
     font-size: 2.4vmin;
     text-align: center;
     cursor: pointer;
-    padding-right: 4px;    
+    padding-right: 4px;
 }
 
-#reportIcon{
+#reportIcon {
     width: 2.4vmin;
     height: 2.4vmin;
 }
@@ -123,14 +146,15 @@ input[type="checkbox"] ~ label{
 }
 
 #idLabel.mobile {
-    font-size: 4.8vmin;    
+    font-size: 4.8vmin;
 }
 
 #idLabel:hover {
     text-decoration: underline;
 }
+/* #endregion */
 
-
+/* #region NewImageButton */
 #newImgButton {
     width: 25%;
     font-size: 1.5vmin;
@@ -139,7 +163,9 @@ input[type="checkbox"] ~ label{
 #newImgButton:disabled {
     cursor: wait;
 }
+/* #endregion */
 
+/* #region Settings */
 #settings {
     width: 33%;
     display: flex;
@@ -151,13 +177,19 @@ input[type="checkbox"] ~ label{
     flex-direction: row;
 }
 
-#settings > hr {
+#settings>hr {
     margin-top: 2px;
     margin-bottom: 2px;
 }
 
-#settings > hr.mobile {
+#settings>hr.mobile {
     display: none;
+}
+/* #endregion */
+
+/* #region ScalingRadioHolder */
+#scalingRadioHolder {
+    align-self: center;
 }
 
 #scalingRadioHolder.mobile {
@@ -165,7 +197,9 @@ input[type="checkbox"] ~ label{
     flex-direction: row;
     flex-wrap: wrap;
 }
+/* #endregion */
 
+/* #region HistoryExpander */
 #historyExpander {
     width: 100%;
     margin-top: 4px;
@@ -174,22 +208,24 @@ input[type="checkbox"] ~ label{
     align-items: center;
 }
 
-#historyExpander:hover {    
+#historyExpander:hover {
     background-color: var(--lightAccent)
 }
 
-#historyExpander > hr {
+#historyExpander>hr {
     width: 48%;
     height: fit-content;
 }
 
-#historyExpander > img {
+#historyExpander>img {
     width: 2vmin;
 }
+/* #endregion */
 
+/* #region HistoryWheel */
 #historyWheel {
-    display:flex;
-    flex-direction:row;
+    display: flex;
+    flex-direction: row;
     width: 100%;
     padding: 4px;
     overflow-x: scroll;
@@ -201,29 +237,19 @@ input[type="checkbox"] ~ label{
 .historyImage {
     min-width: 90px;
     max-width: 90px;
-
     min-height: 90px;
     max-height: 90px;
 }
+/* #endregion */
 
-.transparent {
-    opacity: 0;
-}
-
-#currentContent {
-    display:flex;
-    justify-content:center;
-
-    padding-bottom: 30px;
-}
-
+/* #region Footer */
 #footer {
     display: flex;
     flex-direction: row;
     padding: 2px 8px 2px 8px;
     padding-left: 8px;
     padding-right: 8px;
-    position: fixed; 
+    position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
@@ -235,3 +261,4 @@ input[type="checkbox"] ~ label{
 #footerSettings {
     margin-left: auto;
 }
+/* #endregion */
