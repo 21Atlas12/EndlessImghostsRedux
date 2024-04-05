@@ -126,7 +126,7 @@ async function getNewImage() {
     try {
         var settings = tryGetSettings()
     } catch {
-        window.alert("invalid settings, Please make at least one selection")
+        window.alert("Invalid settings, please make at least one selection")
         disableControls(false)
         return
     }
