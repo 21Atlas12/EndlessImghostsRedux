@@ -9,11 +9,19 @@ function getThumbnailUrl(contentInfo) {
 }
 
 function getMimeFromContentInfo(contentInfo) {
-    return contentInfo[1]
+    if (contentInfo[1] == undefined) {
+        throw new Error("Mime is undefined")
+    } else {
+        return contentInfo[1]
+    }
 }
 
 function getIdFromContentInfo(contentInfo) {
-    return contentInfo[0]
+    if (contentInfo[0] == undefined) {
+        throw new Error("Id is undefined")
+    } else {
+        return contentInfo[0]
+    }
 }
 
 function serializeContentInfo(contentInfo) {

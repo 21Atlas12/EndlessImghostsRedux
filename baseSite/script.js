@@ -477,25 +477,25 @@ function copyCurrentUrl() {
     }
 
     var label = document.getElementById("copyPrompt")
-        var success = true
+    var success = true
+
+    try {
         var urlToCopy = getUrl(currentInfo)
+        navigator.clipboard.writeText(urlToCopy)
+        label.style.color = "greenyellow"
+        label.innerHTML = "copied!"
+    } catch (error) {
+        label.style.color = "tomato"
+        label.innerHTML = "error!"
+        success = false
+    }
 
-        try {
-            navigator.clipboard.writeText(urlToCopy)
-            label.style.color = "greenyellow"
-            label.innerHTML = "copied!"
-        } catch (error) {
-            label.style.color = "tomato"
-            label.innerHTML = "error!"
-            success = false
-        }
+    setTimeout(function () {
+        label.removeAttribute("style")
+        label.innerHTML = "click to copy"
+    }, 300);
 
-        setTimeout(function () {
-            label.removeAttribute("style")
-            label.innerHTML = "click to copy"
-        }, 300);
-
-        return success
+    return success
 }
 
 function getColourFromInfo(contentInfo) {
