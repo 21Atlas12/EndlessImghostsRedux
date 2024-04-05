@@ -54,7 +54,7 @@ for path in os.listdir(configDirPath):
         maxCols = 4
         currentCol = 0
         toggleTable = "<tr>\n"
-        getSettingsFunc = "function getSettings() {\n\tlet jsonObj = {}\n"
+        tryGetSettingsFunc = "function tryGetSettings() {\n\tlet jsonObj = {}\n"
 
         for item in config["toggles"]:
             toggleTable += "<td onclick=\"{0}Toggle.click()\"> <input type=\"checkbox\" id=\"{0}Toggle\" title=\"{1}\"> <label for=\"{0}Toggle\" title=\"{1}\">{2}</label> </td>\n".format(item["id"], item["desc"], item["name"])
@@ -63,10 +63,10 @@ for path in os.listdir(configDirPath):
                 toggleTable += "</tr>\n"
                 currentCol = 0
 
-            getSettingsFunc += "\tjsonObj.{0} = document.getElementById(\"{0}Toggle\").checked\n".format(item["id"])
+            tryGetSettingsFunc += "\tjsonObj.{0} = document.getElementById(\"{0}Toggle\").checked\n".format(item["id"])
 
         toggleTable += "</tr>\n"
-        getSettingsFunc += "\treturn JSON.stringify(jsonObj)\n}\n"
+        tryGetSettingsFunc += "\tif (!validateSettings(jsonObj)) {\n\t\tthrow new Error(\"Your settings are invalid\")\n\t}\n\treturn jsonObj\n}\n"
 
         indexHtml = indexHtml.replace("~KEY:toggleTableContent~", toggleTable)
 
@@ -87,7 +87,7 @@ for path in os.listdir(configDirPath):
         siteFunctions = siteFunctionsFile.read()
         siteFunctionsFile.close()
         scriptFile.seek(0, 2)
-        scriptFile.write("\n" + siteFunctions + "\n\n" + getSettingsFunc)
+        scriptFile.write("\n" + siteFunctions + "\n\n" + tryGetSettingsFunc)
 
         scriptFile.close()
 
