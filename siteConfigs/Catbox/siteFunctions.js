@@ -24,6 +24,15 @@ function deserializeContentInfo(contentInfoString) {
     return contentInfoString.split(";")
 }
 
+function validateSettings(settings) {
+    for (const [key, value] of Object.entries(settings)) {
+        if (value) {
+            return true
+        }
+    }
+    return false
+}
+
 function reportImage() {
 
 }

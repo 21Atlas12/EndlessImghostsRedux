@@ -123,6 +123,13 @@ var pool = []
 
 async function getNewImage() {
     disableControls(true)
+    try {
+        var settings = tryGetSettings()
+    } catch {
+        window.alert("invalid settings, Please make at least one selection")
+        disableControls(false)
+        return
+    }
     var label = document.getElementById("copyPrompt")
     label.innerHTML = "searching..."
 
@@ -138,10 +145,11 @@ async function getNewImage() {
                     break;
                 case data.startsWith("!"):
                     msg = data.replace("!", "")
-                    showErrorToUser(msg)
+                    window.alert(msg);
                     pool.forEach((worker) => {
                         worker.terminate()
                     })
+                    throw new error(msg)
                     break;
                 case data.startsWith("#"):
                     msg = data.replace("#", "")
@@ -169,7 +177,7 @@ async function getNewImage() {
         pool.push(newWorker)
     }
     pool.forEach((worker) => {
-        worker.postMessage(getSettings())
+        worker.postMessage(JSON.stringify(settings))
     })
 }
 
@@ -546,11 +554,6 @@ function arraysIdentical(a, b) {
     return true;
 };
 
-function showErrorToUser(msg) {
-    window.alert(msg);
-    throw new Error(msg);
-}
-
 function getQueryVariable(variable) {
     var query = window.location.search.substring(1);
     var vars = query.split("&");
@@ -638,4 +641,4 @@ function setMobileMode(enabled) {
 //function serializeContentInfo(contentInfo)
 //function deserializeContentInfo(contentInfoString)
 //function function reportImage()
-//function getSettings() 
+//function tryGetSettings() 
