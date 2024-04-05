@@ -472,8 +472,11 @@ function readHistoryBufferMaxSize() {
 }
 
 function copyCurrentUrl() {
-    if (!controlsDisabled) {
-        var label = document.getElementById("copyPrompt")
+    if (controlsDisabled) {
+        return false
+    }
+
+    var label = document.getElementById("copyPrompt")
         var success = true
         var urlToCopy = getUrl(currentInfo)
 
@@ -493,7 +496,6 @@ function copyCurrentUrl() {
         }, 300);
 
         return success
-    }
 }
 
 function getColourFromInfo(contentInfo) {
