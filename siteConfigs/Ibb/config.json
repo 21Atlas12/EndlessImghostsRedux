@@ -1,0 +1,12 @@
+{
+    "keyReplacements" : {
+        "targetHost": "Ibb",
+        "bodyColour": "rgb(35, 170, 227)",
+        "lightAccentColour": "rgb(160, 221, 247)",
+        "darkAccentColour": "rgb(74, 159, 196)"
+    },
+    
+    "toggles": [
+        {"name" : "5 digit mode", "desc" : "Search using 5 digit ids", "id" : "fiveDigit"}
+    ]
+}
