@@ -381,7 +381,7 @@ function showHistory(visible) {
     var historyHolder = document.getElementById("historyWheel")
     var expandIcon = document.getElementById("expandIcon")
     if (visible) {
-        historyHolder.style.display = "initial"
+        historyHolder.style.display = "flex"
         expandIcon.style.transform = "rotate(180deg)"
         divider.setAttribute("onclick", "showHistory(false)")
     } else {
