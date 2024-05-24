@@ -12,41 +12,47 @@ const archiveMimes = ["zip", "rar", "tar.gz", "7z"]
 const scaryMimes = ["swf", "msi", "sh"]
 
 async function findValidId() {
-    var validImg = false;
-    var newId = "";
+    var validImg = false
+    var newId = ""
+    var idDomain = ""
     var idMime = ""
 
     var mimeList = createMimeList()
+    var domainList = createDomainList()
     //error out here if no mimes
 
     do {
         var id = generateId()
-        for (let i = 0; i < mimeList.length; i++) {
-            mime = mimeList[i]
-            var url = getUrl(id, mime)
+        for (let l = 0; l < domainList.length; l++) {
+            var domain = domainList[l]
+            for (let i = 0; i < mimeList.length; i++) {
+                var mime = mimeList[i]
+                var url = getUrl(id, mime, domain)
 
-            try {
+                try {
 
-                sendUpdateMsg(id+"."+mime)
-                await testUrl(url).then(
-                    function fulfilled() {
-                        newId = id;       
-                        idMime = mime        
-                        validImg = true;
-                    },
-    
-                    function rejected() {
-                        sendLoggingMsg(id+"."+ mime + " is not valid")
-                    }
-                )
-            } catch (e) {
-                sendErrorMsg(e.message)
-                self.close()
-            }
-        };
+                    sendUpdateMsg(id + "." + mime)
+                    await testUrl(url).then(
+                        function fulfilled() {
+                            newId = id;
+                            idMime = mime
+                            idDomain = domain
+                            validImg = true;
+                        },
+
+                        function rejected() {
+                            sendLoggingMsg(id + "." + mime + " is not valid")
+                        }
+                    )
+                } catch (e) {
+                    sendErrorMsg(e.message)
+                    self.close()
+                }
+            };
+        }
     } while (!validImg)
 
-    self.postMessage(newId + ";" + idMime)
+    self.postMessage(newId + ";" + idMime + ";" + idDomain)
     self.close()
 }
 
@@ -56,7 +62,7 @@ function generateId() {
     for (var i = 0; i < idLen; i++) {
         var charIndex = Math.round(Math.random() * (chars.length - 1));
         id += chars.charAt(charIndex);
-    } 
+    }
 
     return id
 }
@@ -64,41 +70,52 @@ function generateId() {
 function createMimeList() {
     var list = []
     if (settings.Images == true) {
-        list = list.concat(imgMimes)                
+        list = list.concat(imgMimes)
     }
     if (settings.ImagesExt == true) {
-        list = list.concat(extImgMimes)            
+        list = list.concat(extImgMimes)
     }
     if (settings.Videos == true) {
-        list = list.concat(vidMimes)            
+        list = list.concat(vidMimes)
     }
     if (settings.VideosExt == true) {
-        list = list.concat(extVidMimes)            
+        list = list.concat(extVidMimes)
     }
     if (settings.Audio == true) {
-        list = list.concat(audioMimes)            
+        list = list.concat(audioMimes)
     }
     if (settings.AudioExt == true) {
-        list = list.concat(extAudioMimes)            
+        list = list.concat(extAudioMimes)
     }
     if (settings.Documents == true) {
-        list = list.concat(docMimes)            
+        list = list.concat(docMimes)
     }
     if (settings.DocumentsExt == true) {
-        list = list.concat(extDocMimes)            
+        list = list.concat(extDocMimes)
     }
     if (settings.Archives == true) {
-        list = list.concat(archiveMimes)            
+        list = list.concat(archiveMimes)
     }
     if (settings.Scary == true) {
-        list = list.concat(scaryMimes)            
+        list = list.concat(scaryMimes)
     }
     return list
 }
 
-function getUrl(id, mime) {
-    var url = "https://files.catbox.moe/" + id
-    return url + "." + mime
+function createDomainList() {
+    var list = []
+    if (settings.Catbox == true) {
+        list.push("https://files.catbox.moe/")
+    }
+    if (settings.Litterbox == true) {
+        list.push("https://litter.catbox.moe/")
+    }
+    return list
+}
+
+function getUrl(id, mime, domain) {
+    var url = domain + id + "." + mime
+    return url
 }
 
 function testUrl(url) {

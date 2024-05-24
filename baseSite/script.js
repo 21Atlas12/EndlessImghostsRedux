@@ -160,7 +160,7 @@ async function getNewImage() {
                         worker.terminate()
                     })
 
-                    var contentInfo = data.split(";")
+                    var contentInfo = deserializeContentInfo(data)
                     pushContent(contentInfo)
 
                     if (playNotif) {
@@ -206,9 +206,8 @@ var currentScaling = scalingTypes.fit
 function pushContent(contentInfo) {
     currentInfo = contentInfo
 
-    var pushedId = getIdFromContentInfo(contentInfo)
     var pushedMime = getMimeFromContentInfo(contentInfo)
-    idLabel.innerHTML = "ID: " + pushedId + "." + pushedMime
+    idLabel.innerHTML = getNameFromContentInfo(contentInfo)
 
     switch (true) {
         case imgMimes.includes(pushedMime):

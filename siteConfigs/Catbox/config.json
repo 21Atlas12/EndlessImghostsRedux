@@ -7,7 +7,7 @@
     },
     
     "toggles": [
-        {"name" : "Images", "desc" : "jpg, png", "id" : "Images"}, 
+        {"name" : "Images", "desc" : "jpg, png", "id" : "Images", "checked": "true"}, 
         {"name" : "Images ext", "desc" : "gif, webp, jpeg, bmp, tiff, ico", "id" : "ImagesExt"}, 
         {"name" : "Videos", "desc" : "mp4, webm", "id" : "Videos"}, 
         {"name" : "Videos etx", "desc" : "m4v, avi, mov", "id" : "VideosExt"}, 
@@ -16,6 +16,8 @@
         {"name" : "Documents", "desc" : "txt, pdf", "id" : "Documents"},
         {"name" : "Documents ext", "desc" : "xml, json, csv, xlsx, pptx", "id" : "DocumentsExt"},
         {"name" : "Archives", "desc" : "zip, rar, tar.gz, 7z", "id" : "Archives"},
-        {"name" : "Scary", "desc" : "swf, msi, sh", "id" : "Scary"}
+        {"name" : "Scary", "desc" : "swf, msi, sh", "id" : "Scary"},
+        {"name" : "Catbox", "desc" : "search for files in catbox.moe", "id" : "Catbox", "checked": "true"},
+        {"name" : "Litterbox", "desc" : "search for files in litterbox.catbox.moe (files in littlerbox are deleted after a maximum of 3 days, you're much less likely to find something)", "id" : "Litterbox"}
     ]
 }

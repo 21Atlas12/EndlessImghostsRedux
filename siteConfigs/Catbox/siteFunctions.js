@@ -1,5 +1,5 @@
 function getUrl(contentInfo) {
-    url = "https://files.catbox.moe/" + getIdFromContentInfo(contentInfo) + "." + getMimeFromContentInfo(contentInfo)
+    url = getDomainFromContentInfo(contentInfo) + getIdFromContentInfo(contentInfo) + "." + getMimeFromContentInfo(contentInfo)
     return url
 }
 
@@ -24,8 +24,21 @@ function getIdFromContentInfo(contentInfo) {
     }
 }
 
+function getDomainFromContentInfo(contentInfo) {
+    if (contentInfo[2] == undefined) {
+        throw new Error("Domain is undefined")
+    } else {
+        return contentInfo[2]
+    }
+}
+
+function getNameFromContentInfo(contentInfo) {
+    return getIdFromContentInfo(contentInfo) + "." + getMimeFromContentInfo(contentInfo)
+}
+
+//info goes ID;Mime;Domain
 function serializeContentInfo(contentInfo) {
-    return getIdFromContentInfo(contentInfo) + ";" + getMimeFromContentInfo(contentInfo)
+    return getIdFromContentInfo(contentInfo) + ";" + getMimeFromContentInfo(contentInfo) + ";" + getDomainFromContentInfo(contentInfo)
 }
 
 function deserializeContentInfo(contentInfoString) {

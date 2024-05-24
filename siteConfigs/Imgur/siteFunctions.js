@@ -24,6 +24,11 @@ function getIdFromContentInfo(contentInfo) {
     }
 }
 
+function getNameFromContentInfo(contentInfo) {
+    return getIdFromContentInfo(contentInfo) + "." + getMimeFromContentInfo(contentInfo)
+}
+
+
 function serializeContentInfo(contentInfo) {
     return getIdFromContentInfo(contentInfo) + ";" + getMimeFromContentInfo(contentInfo)
 }
