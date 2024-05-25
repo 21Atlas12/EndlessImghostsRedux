@@ -284,7 +284,7 @@ function pushHistory(contentInfo) {
             lastHistoryImg = imgList[i];
             lastHistoryOrder = currentOrder;
         }
-        if (imgList[i].src == getThumbnailUrl(contentInfo)) {
+        if (imgList[i].id == serializedInfo) {
             imgList[i].style.order = 0;
             return;
         }
