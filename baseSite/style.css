@@ -239,6 +239,7 @@ input[type="checkbox"] ~ label{
     max-width: 90px;
     min-height: 90px;
     max-height: 90px;
+    padding: 5px
 }
 /* #endregion */
 

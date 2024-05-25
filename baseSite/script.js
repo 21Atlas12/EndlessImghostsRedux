@@ -275,6 +275,7 @@ function setupScaling() {
 function pushHistory(contentInfo) {
     var lastHistoryImg
     var lastHistoryOrder = -1
+    var serializedInfo = serializeContentInfo(contentInfo)
     var imgList = document.getElementsByClassName("historyImage")
     for (let i = 0; i < imgList.length; i++) {
         var currentOrder = parseInt(imgList[i].style.order);
@@ -294,14 +295,16 @@ function pushHistory(contentInfo) {
     var img = document.createElement("img");
     img.className = "historyImage";
     img.style.order = 0;
+    img.style.backgroundColor = getColourFromInfo(contentInfo)
     img.setAttribute("draggable", "false")
     img.setAttribute("src", getThumbnailUrl(contentInfo));
-    img.setAttribute("onclick", "loadHistory(\"" + serializeContentInfo(contentInfo) + "\")");
+    img.setAttribute("onclick", "loadHistory(\"" + serializedInfo + "\")");
+    img.id = serializedInfo
     historyWheel.appendChild(img);
 }
 
-function loadHistory(contentInfo) {
-    var deserializedInfo = (deserializeContentInfo(contentInfo));
+function loadHistory(sereialisedContentInfo) {
+    var deserializedInfo = (deserializeContentInfo(sereialisedContentInfo));
     pushContent(deserializedInfo);
 }
 
@@ -498,33 +501,47 @@ function copyCurrentUrl() {
 }
 
 function getColourFromInfo(contentInfo) {
-    serializeContentInfo(contentInfo)
-    //need to change this
+    var seedString = serializeContentInfo(contentInfo)
+    let seed = 0;
+    for (let i = 0; i < seedString.length; i++) {
+        seed = (seed << 5) - seed + seedString.charCodeAt(i);
+        seed |= 0; // Convert to 32-bit integer
+    }
+
+    let lcg = new EightBitLCG(seed);
+
     // Initialze an empty array to store color components
-    // var components = []
+    var components = []
 
-    // var 
-    // // Extract the substings from the ID and covert them to decimal numbers
-    // components.push(parseInt(id.substring(0,2), 36) % 256)
-    // components.push(parseInt(id.substring(2,4), 36) % 256)
-    // components.push(parseInt(id.substring(4,6), 36) % 256)
+    // Extract the substings from the ID and covert them to decimal numbers
+    components.push(lcg.next())
+    components.push(lcg.next())
+    components.push(lcg.next())
 
-    // // Output the comopnents to the console
-    // console.log(components)
+    // Define a scale to map the component values from a rage of 0-255 to a range of 90-255
+    var scale = (255 - 90) / (255 - 0)
+    // Initialize a varable to store the final hex color value
+    var hex= "#"
 
-    // // Define a scale to map the component values from a rage of 0-255 to a range of 90-255
-    // var scale = (255 - 90) / (255 - 0)
-    // // Initialize a varable to store the final hex color value
-    // var hex= "#"
+    // Loop through each component, adjut its value based on the scale, and convert it to hexadecinal
+    for (var i = 0; i < components.length; i++) {
+        var adjusted = Math.ceil(90 + (components[i] * scale))
+        hex += adjusted.toString(16) // Convert the adjusted value to hexadecinal and apend it to the hex string
+    }
 
-    // // Loop through each component, adjut its value based on the scale, and convert it to hexadecinal
-    // for (var i = 0; i < components.length; i++) {
-    //     var adjusted = Math.ceil(90 + (components[i] * scale))
-    //     hex += adjusted.toString(16) // Convert the adjusted value to hexadecinal and apend it to the hex string
-    // }
+    // Return the final hex color value
+    return hex
+}
 
-    // // Return the final hex color value
-    // return hex
+function EightBitLCG(seed) {
+    this.seed = seed;
+    this.modulus = 2**31;
+    this.a = 1103515245;
+    this.c = 12345;
+    this.next = function() {
+        this.seed = (this.a * this.seed + this.c) % this.modulus;
+        return (this.seed >>> 7) & 0xFF;
+    };
 }
 //#endregion
 

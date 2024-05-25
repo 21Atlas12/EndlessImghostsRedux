@@ -4,8 +4,30 @@ function getUrl(contentInfo) {
 }
 
 function getThumbnailUrl(contentInfo) {
-    url = getUrl(contentInfo)
-    return url
+    var contentMime = getMimeFromContentInfo(contentInfo)
+    if (imgMimes.includes(contentMime)) {
+        return getUrl(contentInfo)
+    }
+    switch (true) {
+        
+        case vidMimes.includes(contentMime):
+            return "../commonRes/video.svg"
+        
+        case audioMimes.includes(contentMime):
+            return "../commonRes/music.svg"
+
+        case docMimes.includes(contentMime):
+            return "../commonRes/document.svg"
+
+        case archiveMimes.includes(contentMime):
+            return "../commonRes/zip.svg"
+
+        case scaryMimes.includes(contentMime):
+            return "../commonRes/virus.svg"
+
+        default: 
+            return "../commonRes/idk.svg"
+    }
 }
 
 function getMimeFromContentInfo(contentInfo) {
