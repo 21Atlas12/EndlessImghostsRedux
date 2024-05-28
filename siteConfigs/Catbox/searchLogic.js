@@ -122,6 +122,7 @@ function testUrl(url) {
 
     let imgPromise = new Promise(async function imgPromise(resolve, reject) {
         var xhr = new XMLHttpRequest();
+        xhr.timeout = 700
         xhr.open('HEAD', url, true);
 
         xhr.onreadystatechange = async function () {
@@ -137,6 +138,9 @@ function testUrl(url) {
                 reject()
             }
         };
+        xhr.ontimeout = (e) => {
+            reject()
+          };
 
         xhr.send();
     });
