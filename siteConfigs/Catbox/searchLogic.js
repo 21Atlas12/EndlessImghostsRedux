@@ -139,6 +139,7 @@ function testUrl(url) {
             }
         };
         xhr.ontimeout = (e) => {
+            sendLoggingMsg("Timed out")
             reject()
           };
 
