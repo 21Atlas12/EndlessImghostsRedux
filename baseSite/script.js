@@ -352,7 +352,7 @@ function disableControls(disable) {
     } else {
         controlsDisabled = false
         var button = document.getElementById("newImgButton")
-        button.setAttribute("onclick", "getNewImage()");
+        button.setAttribute("onclick", "imageButtonPressed()");
         button.textContent = "new image"
     }
 }
