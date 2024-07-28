@@ -122,6 +122,9 @@ function setup() {
 var pool = []
 
 async function getNewImage() {
+    var audio = new Audio("../commonRes/gambling.wav");
+    audio.play();
+
     disableControls(true)
     try {
         var settings = tryGetSettings()
