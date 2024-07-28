@@ -122,9 +122,6 @@ function setup() {
 var pool = []
 
 async function getNewImage() {
-    var audio = new Audio("../commonRes/gambling.wav");
-    audio.play();
-
     disableControls(true)
     try {
         var settings = tryGetSettings()
@@ -416,19 +413,10 @@ function selectScaling() {
 //#endregion
 
 //#region UI functions
-function setFavicon(isAlert) {
-    var link = document.querySelector("link[rel~='icon']");
-    if (!link) {
-        link = document.createElement('link');
-        link.rel = 'icon';
-        document.getElementsByTagName('head')[0].appendChild(link);
-    }
-
-    if (isAlert) {
-        link.href = '../commonRes/alertFavicon.ico';
-    } else {
-        link.href = '../commonRes/favicon.ico'
-    }
+function imageButtonPressed() {
+    var audio = new Audio("../commonRes/gambling.wav");
+    audio.play();
+    getNewImage();
 }
 
 function notify() {
@@ -501,6 +489,21 @@ function copyCurrentUrl() {
     }, 300);
 
     return success
+}
+
+function setFavicon(isAlert) {
+    var link = document.querySelector("link[rel~='icon']");
+    if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.getElementsByTagName('head')[0].appendChild(link);
+    }
+
+    if (isAlert) {
+        link.href = '../commonRes/alertFavicon.ico';
+    } else {
+        link.href = '../commonRes/favicon.ico'
+    }
 }
 
 function getColourFromInfo(contentInfo) {
