@@ -414,8 +414,8 @@ function selectScaling() {
 
 //#region UI functions
 function imageButtonPressed() {
-    var audio = new Audio("../commonRes/gambling.wav");
-    audio.play();
+    //var audio = new Audio("../commonRes/gambling.wav");
+    //audio.play();
     getNewImage();
 }
 
